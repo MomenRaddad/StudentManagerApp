@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎓 Student Manager App
 
 A simple **C# console application** to manage student data and convert numeric grades into letter grades (A-F).  
@@ -24,3 +25,6 @@ This project was created as part of my C# practice and demonstrates the use of *
 - `Person` → Base class containing `Name`, `Age`, and `DateOfBirth`.
 - `Student` → Inherits from `Person`, adds `StudentId` and student-specific methods.
 - `Program` → Handles user input, menu, and overall logic.
+=======
+# StudentManagerApp
+>>>>>>> origin/main

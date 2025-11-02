@@ -1,11 +1,12 @@
 ﻿using GradeApp.Models;
 using System;
+using System.Globalization;
 
 namespace GradeApp
 {
     internal class Program
     {
-        static void ConvertGradeMenu(String input)
+        static (bool Success, char Letter, string ErrorMessage) ConvertGradeMenu(String input)
         {
         
             {
@@ -14,8 +15,7 @@ namespace GradeApp
                 {
                     if (grade < 0 || grade > 100)
                     {
-                        Console.WriteLine("Invalid grade. Please enter a grade between 0 and 100.");
-                        return;
+                        return (false , '\0', "Invalid grade. Please enter a grade between 0 and 100.");
                     }
                     else
                     {
@@ -28,18 +28,72 @@ namespace GradeApp
                             _ => 'F'
                         };
 
-                        Console.WriteLine($"Your letter grade is: {letterGrade}");
+                        return (true, letterGrade, string.Empty);
                     }
 
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input. Please enter a numeric grade.");
+                    return (false, '\0', "Invalid input. Please enter a numeric grade.");
                 }
 
             }
 
         }
+        static bool TryReadDate(string label,string dateFormat,out DateTime date)
+        {
+            while (true)
+            {
+                Console.Write($"Enter {label} ({dateFormat}): ");
+                string input = Console.ReadLine();
+
+                bool ok = DateTime.TryParseExact(
+                    input,
+                    dateFormat,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out date
+                );
+
+                if (!ok)
+                {
+                    Console.WriteLine($"Invalid date. Please enter the date in format {dateFormat}.");
+                    continue;
+                }
+
+                if (date > DateTime.Today)
+                {
+                    
+                    Console.WriteLine("Date cannot be in the future. Please enter a past date (today or earlier).");
+                    continue;
+                }
+                return true;
+
+            }
+        }
+        static int ValidateAge()
+        {
+            int value;
+
+            while (true)
+            {
+                Console.Write($"Enter : Student Age ");
+                string input = Console.ReadLine();
+                if (!int.TryParse(input, out value))
+                {
+                    Console.WriteLine("Invalid input. Please enter digits only (18, 25, 60 ...).");
+                    continue;
+                }
+                if (value < 0 || value > 120)
+                {
+                    Console.WriteLine("Age out of range. Please enter an age between 0 and 120.");
+                    continue;
+                }
+
+                return value;
+            }
+        }
+
         static void ShowMenu()
         {
             Console.WriteLine("\n \n \n ====================================");
@@ -71,19 +125,30 @@ namespace GradeApp
                     case "1":
                         Console.Write("Enter your numeric grade (0-100): ");
                         string gradeInput = Console.ReadLine();
-                        ConvertGradeMenu(gradeInput);
+                        var result = ConvertGradeMenu(gradeInput);
+                        if (result.Success)
+                        {
+                            Console.WriteLine($"Your letter grade is: {result.Letter}");
+                        }
+                        else
+                        {
+                            Console.WriteLine(result.ErrorMessage);
+                        }
                         break;
                     case "2":
                         Student newStudent = new Student();
                         Console.Write("Enter student name: ");
                         newStudent.Name = Console.ReadLine();
-                        Console.Write("Enter student age: ");
-                        newStudent.Age = int.Parse(Console.ReadLine());
-                        Console.Write("Enter student date of birth (year): ");
-                        newStudent.DateOfBirth = int.Parse(Console.ReadLine());
+                      
+                        newStudent.Age=ValidateAge();
+
+                        if (TryReadDate("date of birth", "yyyy-MM-dd", out DateTime dob))
+                        
+                            newStudent.DateOfBirth = dob;
+           
                         newStudent.StudentId = Students.Count > 0 ? Students.Max(s => s.StudentId) + 1 : 1; 
                         Students.Add(newStudent);
-                        Console.WriteLine($"Student Details: Name: {newStudent.Name}, Age: {newStudent.Age}, Date of Birth: {newStudent.DateOfBirth}, Student ID: {newStudent.StudentId}");
+                        Console.WriteLine($"Student Details: Name: {newStudent.Name}, Age: {newStudent.Age}, Date of Birth: {newStudent.DateOfBirth.ToShortDateString()}, Student ID: {newStudent.StudentId}");
                         break;
 
                     case "3":
